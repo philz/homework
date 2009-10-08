@@ -1,0 +1,46 @@
+Create Link Graph Input: lines of XML pages
+Create Link Group Output: key is title, value is JSON with one key: links
+
+Process Page Rank Intput: key is title, value is JSON with one required
+key: links, and one optioanl key: page_rank (defaults to 1-d).
+Process Page Rank Map Output: 
+  outgoing_link_title -> page_rank  [once for every outgoing link]
+  title -> links [once]
+Process Page Rank Reduce Output:
+  key is title, value is JSON with 2 keys: page_rank and links
+
+Cleanup 
+
+
+
+Example flow:
+
+Original input:
+<page><title>A</title><text>[[B]][[C]]</text></page>
+<page><title>B</title><text>[[C]]</text></page>
+<page><title>C</title><text>[[B]]</text></page>
+
+Create Link Graph Output:
+A	{ links: ["B", "C"] }
+B	{ links: ["C"] }
+C	{ links: ["B"] }
+
+Page Rank Map Outputs (assume d=0.65):
+A       { links: ["B", "C"] }
+B	{ page_rank: 0.35/2 }
+C       { page_rank: 0.35/2 }
+B	{ links: ["C"] }
+C       { page_rank: 0.35 }
+C	{ links: ["B"] }
+B       { page_rank: 0.35 }
+
+Page Rank Reduce Output:
+A       { links: ["B", "C"], page_rank: ... }
+...
+...
+
+Cleanup Output:
+(numbers are made up)
+0.13 A
+0.43 B
+0.34 C
